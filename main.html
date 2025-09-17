@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Stroop Test - Single Page with Age Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    .container {
+      background: #ffffffdd;
+      backdrop-filter: blur(12px);
+      max-width: 600px;
+      width: 90%;
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+    h2 {
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      letter-spacing: 1.2px;
+      font-size: 2em;
+    }
+    label {
+      display: block;
+      font-size: 1.1em;
+      color: #34495e;
+      margin: 12px 0 5px 0;
+      text-align: left;
+    }
+    input[type="text"],
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #3498db;
+      font-size: 1.1em;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #2980b9;
+      box-shadow: 0 0 8px #2980b9aa;
+    }
+    button {
+      cursor: pointer;
+      background: #3498db;
+      color: #fff;
+      font-size: 1.15em;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 40px;
+      margin: 25px auto;
+      display: block;
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      min-width: 160px;
+    }
+    button:hover:not(:disabled) {
+      background: #2980b9;
+      box-shadow: 0 8px 22px rgba(41, 128, 185, 0.6);
+    }
+    button:disabled {
+      background: #b0c9e0;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    #levelImage {
+      margin: 20px 0;
+      width: 100%;
+      height: auto;
+      max-width: 80%;
+      border-radius: 15px;
+      border: 3px solid #3498db;
+      box-shadow: 0 8px 15px rgba(52, 152, 219, 0.35);
+      object-fit: contain;
+      transition: all 0.3s ease;
+    }
+    #timerLabel {
+      margin-top: 14px;
+      font-weight: 600;
+      font-size: 1.1em;
+      color: #34495e;
+      min-height: 24px;
+      user-select: text;
+    }
+    table {
+      margin: 30px auto;
+      width: 90%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      font-size: 1.1em;
+    }
+    th, td {
+      padding: 14px 18px;
+      background: #f1f8ff;
+      border-radius: 10px;
+      color: #34495e;
+      box-shadow: 0 2px 6px #d0e6fc;
+    }
+    th {
+      background: #3498db;
+      color: white;
+      font-weight: 700;
+    }
+    #summaryText {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: #2c3e50;
+      font-weight: 600;
+      user-select: text;
+    }
+    .hidden {
+      display: none;
+    }
+
+    /* Animation */
+    .fadeIn {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* For full-screen pages (analysis page) */
+    .full-screen-container {
+      max-width: 100%;
+      width: 100%;
+      padding: 40px 60px;
+      border-radius: 15px;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container fadeIn" id="app">
+   <!-- Content injected here -->
+</div>
+
+<script>
+  const images = [
+    'https://ik.imagekit.io/jpssjscos/level1.jpg?updatedAt=1758122117946',
+    'https://ik.imagekit.io/jpssjscos/level2.jpg?updatedAt=1758122101164',
+    'https://ik.imagekit.io/jpssjscos/level3.jpg?updatedAt=1758122084146',
+    'https://ik.imagekit.io/jpssjscos/level4.jpg?updatedAt=1758122020940'
+  ];
+
+  let user = { name: '', age: '', times: [] };
+  let currentLevel = 0;
+  let levelStartTime = null;
+
+  const app = document.getElementById('app');
+
+  function calculateAge(dobString) {
+    const dob = new Date(dobString);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  function renderStart() {
+    app.innerHTML = `
+      <h2>Stroop Test - Start</h2>
+      <label for="userName">Name:</label>
+      <input type="text" id="userName" autocomplete="off" />
+      <label for="userDOB">Date of Birth:</label>
+      <input type="date" id="userDOB" max="${new Date().toISOString().split('T')[0]}" />
+      <button id="startBtn" disabled>Start Test</button>
+    `;
+    const startBtn = document.getElementById('startBtn');
+    const nameInput = document.getElementById('userName');
+    const dobInput = document.getElementById('userDOB');
+
+    function toggleStartButton() {
+      startBtn.disabled = !(nameInput.value.trim() && dobInput.value);
+    }
+
+    nameInput.addEventListener('input', toggleStartButton);
+    dobInput.addEventListener('input', toggleStartButton);
+
+    startBtn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      const dobVal = dobInput.value;
+      if(!name || !dobVal) {
+        alert('Please enter your name and date of birth.');
+        return;
+      }
+      user.name = name;
+      user.age = calculateAge(dobVal);
+      currentLevel = 0;
+      user.times = [];
+      renderLevel();
+    });
+  }
+
+  function renderLevel() {
+    levelStartTime = Date.now();
+    const isLast = currentLevel === images.length - 1;
+    app.innerHTML = `
+      <h2>Level ${currentLevel + 1}</h2>
+      <img id="levelImage" class="fadeIn" src="${images[currentLevel]}" alt="Level ${currentLevel + 1} image"/>
+      <div id="timerLabel"></div>
+      <button id="actionBtn">${isLast ? 'Finish' : 'Next Level'}</button>
+    `;
+    document.getElementById('actionBtn').addEventListener('click', () => {
+      let timeTaken = ((Date.now() - levelStartTime) / 1000).toFixed(2);
+      user.times.push(timeTaken);
+      document.getElementById('timerLabel').textContent = `Time: ${timeTaken} seconds`;
+      if(!isLast) {
+        currentLevel++;
+        setTimeout(renderLevel, 600);
+      } else {
+        setTimeout(renderResults, 800);
+      }
+    });
+  }
+
+  function renderResults() {
+    let rows = '';
+    let totalTime = 0;
+    user.times.forEach((time, i) => {
+      rows += `<tr><td>Level ${i + 1}</td><td>${time} s</td></tr>`;
+      totalTime += parseFloat(time);
+    });
+    const avgTime = (totalTime / user.times.length).toFixed(2);
+    app.innerHTML = `
+      <div class="full-screen-container fadeIn">
+        <h2>Test Complete</h2>
+        <div id="summaryText">
+          <p><b>Name:</b> ${user.name}</p>
+          <p><b>Age:</b> ${user.age}</p>
+          <p><b>Total Time:</b> ${totalTime.toFixed(2)} seconds</p>
+          <p><b>Average Time per Level:</b> ${avgTime} seconds</p>
+        </div>
+        <table>
+          <tr><th>Level</th><th>Time (seconds)</th></tr>
+          ${rows}
+        </table>
+        <button id="restartBtn">Restart Test</button>
+      </div>
+    `;
+    document.getElementById('restartBtn').addEventListener('click', renderStart);
+  }
+
+  // Initial render
+  renderStart();
+</script>
+
+</body>
+</html>
