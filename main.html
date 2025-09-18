@@ -1,282 +1,542 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Stroop Test - Single Page with Age Calculator</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stroop Test Portal</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.3s ease;
+    :root{
+      --nav:#18314e;
+      --accent:#1f7fbf;
+      --card-bg: rgba(255,255,255,0.95);
+      --glass: rgba(255,255,255,0.6);
     }
-    .container {
-      background: #ffffffdd;
-      backdrop-filter: blur(12px);
-      max-width: 600px;
-      width: 90%;
-      padding: 30px 40px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      color: #333;
-      transition: all 0.3s ease;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, "Segoe UI", Roboto, system-ui, Arial;
+      height:100vh; display:flex; flex-direction:column;
+      background: linear-gradient(135deg,#9be7ff 0%, #c8d6ff 100%);
+      -webkit-font-smoothing:antialiased;
     }
-    h2 {
-      font-weight: 700;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      letter-spacing: 1.2px;
-      font-size: 2em;
+
+    /* NAV */
+    header.nav{
+      position:fixed; top:0; left:0; right:0; height:68px;
+      background:var(--nav); color:#fff; display:flex; align-items:center;
+      padding:0 22px; z-index:50; box-shadow:0 4px 14px rgba(0,0,0,0.15);
     }
-    label {
-      display: block;
-      font-size: 1.1em;
-      color: #34495e;
-      margin: 12px 0 5px 0;
-      text-align: left;
+    .brand { font-weight:700; letter-spacing:0.3px; font-size:1.05rem; }
+    nav.links { margin-left:auto; display:flex; gap:18px; }
+    nav.links button{
+      background:transparent; border:none; color: #dbefff; padding:8px 12px;
+      cursor:pointer; font-weight:600; border-radius:8px; font-size:0.97rem;
+      transition:background .18s, color .18s;
     }
-    input[type="text"],
-    input[type="date"] {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #3498db;
-      font-size: 1.1em;
-      transition: border-color 0.3s ease;
-      box-sizing: border-box;
-    }
-    input[type="text"]:focus,
-    input[type="date"]:focus {
-      outline: none;
-      border-color: #2980b9;
-      box-shadow: 0 0 8px #2980b9aa;
-    }
-    button {
-      cursor: pointer;
-      background: #3498db;
+    nav.links button.active, nav.links button:hover{
+      background: rgba(255,255,255,0.06);
       color: #fff;
-      font-size: 1.15em;
-      font-weight: 600;
-      border: none;
-      border-radius: 12px;
-      padding: 14px 40px;
-      margin: 25px auto;
-      display: block;
-      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      user-select: none;
-      min-width: 160px;
-    }
-    button:hover:not(:disabled) {
-      background: #2980b9;
-      box-shadow: 0 8px 22px rgba(41, 128, 185, 0.6);
-    }
-    button:disabled {
-      background: #b0c9e0;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-    #levelImage {
-      margin: 20px 0;
-      width: 100%;
-      height: auto;
-      max-width: 80%;
-      border-radius: 15px;
-      border: 3px solid #3498db;
-      box-shadow: 0 8px 15px rgba(52, 152, 219, 0.35);
-      object-fit: contain;
-      transition: all 0.3s ease;
-    }
-    #timerLabel {
-      margin-top: 14px;
-      font-weight: 600;
-      font-size: 1.1em;
-      color: #34495e;
-      min-height: 24px;
-      user-select: text;
-    }
-    table {
-      margin: 30px auto;
-      width: 90%;
-      border-collapse: separate;
-      border-spacing: 0 10px;
-      font-size: 1.1em;
-    }
-    th, td {
-      padding: 14px 18px;
-      background: #f1f8ff;
-      border-radius: 10px;
-      color: #34495e;
-      box-shadow: 0 2px 6px #d0e6fc;
-    }
-    th {
-      background: #3498db;
-      color: white;
-      font-weight: 700;
-    }
-    #summaryText {
-      font-size: 1.2em;
-      margin-bottom: 15px;
-      color: #2c3e50;
-      font-weight: 600;
-      user-select: text;
-    }
-    .hidden {
-      display: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     }
 
-    /* Animation */
-    .fadeIn {
-      animation: fadeIn 0.8s ease-out;
+    /* PAGE LAYOUT */
+    main { padding-top:92px; flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; }
+    .wrap {
+      width:100%; max-width:1100px; padding:28px; gap:20px; display:flex; flex-direction:column;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius:14px; padding:22px; box-shadow: 0 10px 30px rgba(19, 46, 74, 0.08);
+      border: 1px solid rgba(20,40,70,0.05);
     }
 
-    @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    /* HOME */
+    .home-hero { display:flex; gap:20px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .hero-left { max-width:62%; }
+    .hero-left h1 { margin:0; font-size:1.6rem; color:#163147; }
+    .hero-left p { margin:10px 0 0; color:#294a63; line-height:1.45; }
+    .hero-actions { display:flex; gap:12px; margin-top:14px; }
+    .btn { background:var(--accent); color:white; border:none; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn.secondary { background:#2b5f86; }
+    .btn.ghost { background:transparent; color:var(--nav); border:1px solid rgba(0,0,0,0.06); }
 
-    /* For full-screen pages (analysis page) */
-    .full-screen-container {
-      max-width: 100%;
-      width: 100%;
-      padding: 40px 60px;
-      border-radius: 15px;
+    /* TEST */
+    .form-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; align-items:end; margin-top:12px; }
+    label{display:block;font-size:0.9rem;color:#244055;margin-bottom:6px;font-weight:600}
+    input[type="text"], input[type="date"]{
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(20,40,70,0.08); font-size:0.95rem;
+      background:transparent;
     }
+    .center { text-align:center; }
+    #gameArea { margin-top:18px; display:none; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
 
+    #levelImage { width:70%; max-width:520px; height:auto; border-radius:12px; border: 3px solid var(--accent); }
+    #timerLabel { font-weight:700; font-size:1.1rem; color:#14324b; min-height:22px; }
+    #progress { margin-top:6px; font-size:0.95rem; color:#234b63; }
+
+    /* ANALYSIS */
+    .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    .controls input[type="text"], .controls input[type="date"] { padding:8px 10px; border-radius:8px; border:1px solid rgba(30,60,90,0.07); }
+    table.results {
+      width:100%; border-collapse:collapse; margin-top:12px; font-size:0.92rem;
+    }
+    table.results th, table.results td {
+      padding:8px 10px; border:1px solid rgba(20,40,70,0.06); text-align:center;
+    }
+    table.results th { background:var(--accent); color:#fff; font-weight:700; }
+    .small { font-size:0.85rem; color:#1f4154; }
+
+    /* responsive */
+    @media (max-width:880px){
+      .hero-left{max-width:100%}
+      .form-grid{grid-template-columns:1fr}
+      #levelImage{width:92%}
+    }
   </style>
 </head>
 <body>
+  <header class="nav">
+    <div class="brand">Stroop Test Portal</div>
+    <nav class="links">
+      <button id="navHome" class="active" onclick="showTab('home')">Home</button>
+      <button id="navTest" onclick="showTab('test')">Start Test</button>
+      <button id="navAnalysis" onclick="showTab('analysis')">Analysis</button>
+    </nav>
+  </header>
 
-<div class="container fadeIn" id="app">
-   <!-- Content injected here -->
-</div>
+  <main>
+    <div class="wrap">
+      <!-- HOME -->
+      <section id="home" class="card">
+        <div class="home-hero">
+          <div class="hero-left">
+            <h1>Measure reaction — level by level.</h1>
+            <p>
+              Start the Stroop test, go through 4 levels, and your timing will be recorded.
+              Previous tests are stored and can be downloaded as CSV (columns: name, age, dob, level1, level2, level3, level4, average seconds, total seconds).
+            </p>
+            <div class="hero-actions">
+              <button class="btn" onclick="showTab('test'); focusName()">Start Stroop Test</button>
+              <button class="btn secondary" onclick="showTab('analysis'); renderAnalysis()">View Analysis</button>
+            </div>
+          </div>
+          <div class="hero-right center">
+            <img src="https://ik.imagekit.io/jpssjscos/IMG-20250917-WA0029.jpg?updatedAt=1758128642301" alt="stroop" style="width:220px;border-radius:12px;border:3px solid rgba(0,0,0,0.06)" />
+            <div class="small" style="margin-top:8px">Quick, simple, and single-file — ready for GitHub Pages.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TEST -->
+      <section id="test" class="card" style="display:none">
+        <h2 style="margin:0 0 8px 0">Start Stroop Test</h2>
+        <div class="form-grid">
+          <div>
+            <label for="nameInput">Name</label>
+            <input id="nameInput" type="text" placeholder="Enter full name" />
+          </div>
+          <div>
+            <label for="dobInput">Date of Birth</label>
+            <input id="dobInput" type="date" max="" />
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+          <button class="btn" id="startBtn" onclick="beginTest()" disabled>Begin Test</button>
+          <button class="btn ghost" onclick="resetForm()" style="border:1px solid rgba(0,0,0,0.06); background:transparent; color:var(--nav)">Reset</button>
+          <div style="margin-left:auto" class="small">Levels: 4 • Results appended</div>
+        </div>
+
+        <div id="gameArea" class="card" style="display:none; margin-top:18px; align-items:center;">
+          <div id="progress" class="small"></div>
+          <img id="levelImage" src="" alt="Level image" />
+          <div id="timerLabel">0.00 s</div>
+          <div style="display:flex; gap:10px; margin-top:8px">
+            <button class="btn" id="nextBtn" onclick="onNext()">Next</button>
+            <button class="btn secondary" onclick="abortTest()">Cancel</button>
+          </div>
+          <div id="summaryArea" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- ANALYSIS -->
+      <section id="analysis" class="card" style="display:none">
+        <h2 style="margin:0 0 10px 0">Analysis & Export</h2>
+
+        <div class="controls">
+          <input id="filterName" type="text" placeholder="Filter by name..." oninput="renderAnalysis()" />
+          <label class="small" style="display:flex; align-items:center; gap:6px;">
+            From <input id="fromDate" type="date" onchange="renderAnalysis()" />
+          </label>
+          <label class="small" style="display:flex; align-items:center; gap:6px;">
+            To <input id="toDate" type="date" onchange="renderAnalysis()" />
+          </label>
+          <button class="btn" onclick="downloadCSVFiltered()">Download CSV (filtered)</button>
+          <button class="btn ghost" onclick="clearAll()" style="background:#fff; color:var(--nav); border:1px solid rgba(0,0,0,0.06)">Clear All</button>
+        </div>
+
+        <div style="overflow:auto">
+          <table class="results" id="resultsTable" >
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>DOB</th>
+                <th>Level 1 (s)</th>
+                <th>Level 2 (s)</th>
+                <th>Level 3 (s)</th>
+                <th>Level 4 (s)</th>
+                <th>Average (s)</th>
+                <th>Total (s)</th>
+                <th>Tested On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <!-- rows here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
 
 <script>
-  const images = [
-    'https://ik.imagekit.io/jpssjscos/level1.jpg?updatedAt=1758122117946',
-    'https://ik.imagekit.io/jpssjscos/level2.jpg?updatedAt=1758122101164',
-    'https://ik.imagekit.io/jpssjscos/level3.jpg?updatedAt=1758122084146',
-    'https://ik.imagekit.io/jpssjscos/IMG-20250917-WA0029.jpg?updatedAt=1758128642301'
-  ];
+/* ==========================
+   Configuration & Images
+   ========================== */
+const IMAGES = [
+  'https://ik.imagekit.io/jpssjscos/level1.jpg?updatedAt=1758122117946',
+  'https://ik.imagekit.io/jpssjscos/level2.jpg?updatedAt=1758122101164',
+  'https://ik.imagekit.io/jpssjscos/level3.jpg?updatedAt=1758122084146',
+  'https://ik.imagekit.io/jpssjscos/IMG-20250917-WA0029.jpg?updatedAt=1758128642301'
+];
+const STORAGE_KEY = 'stroopResults_v1'; // localStorage key
 
-  let user = { name: '', age: '', times: [] };
-  let currentLevel = 0;
-  let levelStartTime = null;
+/* ==========================
+   Utility helpers
+   ========================== */
+function $(id){return document.getElementById(id);}
+function nowISO(){ return new Date().toISOString(); }
+function formatReadable(iso){ return new Date(iso).toLocaleString(); }
+function csvEscape(s){
+  if (s === undefined || s === null) return '';
+  const str = String(s);
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
 
-  const app = document.getElementById('app');
+/* ==========================
+   Tab Navigation
+   ========================== */
+function showTab(tab){
+  ['home','test','analysis'].forEach(t => {
+    const el = $(t);
+    if (!el) return;
+    el.style.display = (t === tab) ? 'block' : 'none';
+  });
+  // nav active toggles
+  ['navHome','navTest','navAnalysis'].forEach(n => $(n).classList.remove('active'));
+  if (tab === 'home') $('navHome').classList.add('active');
+  if (tab === 'test') $('navTest').classList.add('active');
+  if (tab === 'analysis') $('navAnalysis').classList.add('active');
 
-  function calculateAge(dobString) {
-    const dob = new Date(dobString);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age;
+  if (tab === 'analysis') renderAnalysis();
+}
+
+/* ==========================
+   Age calculator
+   ========================== */
+function calcAge(dobIso){
+  if(!dobIso) return '';
+  const dob = new Date(dobIso);
+  const t = new Date();
+  let age = t.getFullYear() - dob.getFullYear();
+  const m = t.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && t.getDate() < dob.getDate())) age--;
+  return age;
+}
+
+/* ==========================
+   Storage helpers
+   ========================== */
+function readResults(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e){
+    console.error('readResults', e);
+    return [];
+  }
+}
+function writeResults(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list || []));
+}
+
+/* ==========================
+   Test flow state
+   ========================== */
+let testState = {
+  name: '',
+  dob: '',
+  age: '',
+  times: [],
+  levelIndex: 0,
+  levelStartTs: 0,
+  timerInterval: null
+};
+
+/* UI elements */
+const nameInput = $('nameInput');
+const dobInput = $('dobInput');
+const startBtn = $('startBtn');
+const gameArea = $('gameArea');
+const levelImage = $('levelImage');
+const timerLabel = $('timerLabel');
+const progressLabel = $('progress');
+const nextBtn = $('nextBtn');
+const summaryArea = $('summaryArea');
+
+/* initialize DOB max to today */
+dobInput.max = new Date().toISOString().split('T')[0];
+
+/* enable start button when inputs present */
+[nameInput, dobInput].forEach(el => {
+  el.addEventListener('input', () => {
+    startBtn.disabled = !(nameInput.value.trim() && dobInput.value);
+  });
+});
+
+/* focus helper */
+function focusName(){ setTimeout(()=>nameInput.focus(),120); }
+
+/* begin Test */
+function beginTest(){
+  testState.name = nameInput.value.trim();
+  testState.dob = dobInput.value;
+  testState.age = calcAge(testState.dob);
+  testState.times = [];
+  testState.levelIndex = 0;
+  summaryArea.innerHTML = '';
+  gameArea.style.display = 'flex';
+  loadLevel(0);
+}
+
+/* load level */
+function loadLevel(idx){
+  testState.levelIndex = idx;
+  const totalLevels = IMAGES.length;
+  levelImage.src = IMAGES[idx];
+  progressLabel.textContent = `Level ${idx+1} of ${totalLevels}`;
+  timerLabel.textContent = '0.00 s';
+  // start timer
+  testState.levelStartTs = Date.now();
+  if (testState.timerInterval) clearInterval(testState.timerInterval);
+  testState.timerInterval = setInterval(()=> {
+    const diff = (Date.now() - testState.levelStartTs) / 1000;
+    timerLabel.textContent = diff.toFixed(2) + ' s';
+  }, 50);
+}
+
+/* Next button handler */
+function onNext(){
+  if (!testState.levelStartTs) return;
+  const timeTaken = ((Date.now() - testState.levelStartTs) / 1000);
+  const timeStr = timeTaken.toFixed(2);
+  testState.times.push(timeStr);
+  // stop interval
+  if (testState.timerInterval) { clearInterval(testState.timerInterval); testState.timerInterval = null; }
+
+  if (testState.levelIndex < IMAGES.length - 1){
+    loadLevel(testState.levelIndex + 1);
+  } else {
+    // finished
+    finishTest();
+  }
+}
+
+/* Cancel current test */
+function abortTest(){
+  if (confirm('Cancel this test? Current partial data will be discarded.')) {
+    if (testState.timerInterval) clearInterval(testState.timerInterval);
+    gameArea.style.display = 'none';
+    summaryArea.innerHTML = '';
+    testState = { name:'', dob:'', age:'', times:[], levelIndex:0, levelStartTs:0, timerInterval:null };
+  }
+}
+
+/* finish test & save to storage */
+function finishTest(){
+  const times = testState.times.map(t=>parseFloat(t));
+  const total = times.reduce((a,b)=>a+b,0);
+  const avg = (total / times.length);
+  const iso = nowISO();
+  const entry = {
+    name: testState.name,
+    age: testState.age,
+    dob: testState.dob,
+    times: times.map(t => t.toFixed(2)),
+    total: total.toFixed(2),
+    average: avg.toFixed(2),
+    testedAt: iso
+  };
+  // append to storage
+  const all = readResults();
+  all.push(entry);
+  writeResults(all);
+
+  // summary shown
+  summaryArea.innerHTML = `<div class="small"><strong>Test complete!</strong><br>Total: ${entry.total}s • Average: ${entry.average}s</div>`;
+  // hide game area a little later and navigate to analysis
+  setTimeout(()=> {
+    gameArea.style.display = 'none';
+    renderAnalysis();
+    showTab('analysis');
+  }, 700);
+}
+
+/* Reset form */
+function resetForm(){
+  nameInput.value = '';
+  dobInput.value = '';
+  startBtn.disabled = true;
+  gameArea.style.display = 'none';
+  summaryArea.innerHTML = '';
+}
+
+/* ==========================
+   Analysis rendering & filtering
+   ========================== */
+function renderAnalysis(){
+  const all = readResults();
+  const tbody = $('resultsBody');
+  tbody.innerHTML = '';
+
+  // filters
+  const nameFilter = $('filterName').value.trim().toLowerCase();
+  const from = $('fromDate').value;
+  const to = $('toDate').value;
+
+  const filtered = all.filter((r) => {
+    if (nameFilter && !r.name.toLowerCase().includes(nameFilter)) return false;
+    if (from && (new Date(r.testedAt) < new Date(from + 'T00:00:00'))) return false;
+    if (to && (new Date(r.testedAt) > new Date(to + 'T23:59:59'))) return false;
+    return true;
+  });
+
+  if (filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="12" class="small">No results matching the filters.</td></tr>`;
+    return;
   }
 
-  function renderStart() {
-    app.innerHTML = `
-      <h2>Stroop Test - Start</h2>
-      <label for="userName">Name:</label>
-      <input type="text" id="userName" autocomplete="off" />
-      <label for="userDOB">Date of Birth:</label>
-      <input type="date" id="userDOB" max="${new Date().toISOString().split('T')[0]}" />
-      <button id="startBtn" disabled>Start Test</button>
+  filtered.forEach((r, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${r.name}</td>
+      <td>${r.age}</td>
+      <td>${r.dob}</td>
+      <td>${r.times[0] ?? ''}</td>
+      <td>${r.times[1] ?? ''}</td>
+      <td>${r.times[2] ?? ''}</td>
+      <td>${r.times[3] ?? ''}</td>
+      <td>${r.average}</td>
+      <td>${r.total}</td>
+      <td>${formatReadable(r.testedAt)}</td>
+      <td>
+        <button onclick="deleteEntry(${getGlobalIndex(r)})" style="padding:6px 8px;border-radius:6px;border:none;background:#e04f4f;color:white;cursor:pointer">Delete</button>
+      </td>
     `;
-    const startBtn = document.getElementById('startBtn');
-    const nameInput = document.getElementById('userName');
-    const dobInput = document.getElementById('userDOB');
+    tbody.appendChild(tr);
+  });
+}
 
-    function toggleStartButton() {
-      startBtn.disabled = !(nameInput.value.trim() && dobInput.value);
-    }
-
-    nameInput.addEventListener('input', toggleStartButton);
-    dobInput.addEventListener('input', toggleStartButton);
-
-    startBtn.addEventListener('click', () => {
-      const name = nameInput.value.trim();
-      const dobVal = dobInput.value;
-      if(!name || !dobVal) {
-        alert('Please enter your name and date of birth.');
-        return;
-      }
-      user.name = name;
-      user.age = calculateAge(dobVal);
-      currentLevel = 0;
-      user.times = [];
-      renderLevel();
-    });
+/* get global index of entry (since filtered list uses objects) */
+function getGlobalIndex(entry){
+  const all = readResults();
+  for (let i=0;i<all.length;i++){
+    if (all[i].testedAt === entry.testedAt && all[i].name === entry.name) return i;
   }
+  return -1;
+}
 
-  function renderLevel() {
-    levelStartTime = Date.now();
-    const isLast = currentLevel === images.length - 1;
-    app.innerHTML = `
-      <h2>Level ${currentLevel + 1}</h2>
-      <img id="levelImage" class="fadeIn" src="${images[currentLevel]}" alt="Level ${currentLevel + 1} image"/>
-      <div id="timerLabel"></div>
-      <button id="actionBtn">${isLast ? 'Finish' : 'Next Level'}</button>
-    `;
-    document.getElementById('actionBtn').addEventListener('click', () => {
-      let timeTaken = ((Date.now() - levelStartTime) / 1000).toFixed(2);
-      user.times.push(timeTaken);
-      document.getElementById('timerLabel').textContent = `Time: ${timeTaken} seconds`;
-      if(!isLast) {
-        currentLevel++;
-        setTimeout(renderLevel, 600);
-      } else {
-        setTimeout(renderResults, 800);
-      }
-    });
-  }
+/* delete entry idx (global) */
+function deleteEntry(idx){
+  if (idx < 0) return;
+  const all = readResults();
+  if (idx >= all.length) return;
+  if (!confirm(`Delete result for "${all[idx].name}" tested on ${formatReadable(all[idx].testedAt)} ?`)) return;
+  all.splice(idx,1);
+  writeResults(all);
+  renderAnalysis();
+}
 
-  function renderResults() {
-    let rows = '';
-    let totalTime = 0;
-    user.times.forEach((time, i) => {
-      rows += `<tr><td>Level ${i + 1}</td><td>${time} s</td></tr>`;
-      totalTime += parseFloat(time);
-    });
-    const avgTime = (totalTime / user.times.length).toFixed(2);
-    app.innerHTML = `
-      <div class="full-screen-container fadeIn">
-        <h2>Test Complete</h2>
-        <div id="summaryText">
-          <p><b>Name:</b> ${user.name}</p>
-          <p><b>Age:</b> ${user.age}</p>
-          <p><b>Total Time:</b> ${totalTime.toFixed(2)} seconds</p>
-          <p><b>Average Time per Level:</b> ${avgTime} seconds</p>
-        </div>
-        <table>
-          <tr><th>Level</th><th>Time (seconds)</th></tr>
-          ${rows}
-        </table>
-        <button id="restartBtn">Restart Test</button>
-      </div>
-    `;
-    document.getElementById('restartBtn').addEventListener('click', renderStart);
-  }
+/* clear all results */
+function clearAll(){
+  if (!confirm('Clear ALL stored results? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderAnalysis();
+}
 
-  // Initial render
-  renderStart();
+/* ==========================
+   CSV Download (filtered or all)
+   Format: name,age,dob,level1 time,level2 time,level3 time,level4 time,average seconds,total seconds
+   ========================== */
+function buildCSVRows(list){
+  const header = ['name','age','dob','level1 time','level2 time','level3 time','level4 time','average seconds','total seconds'];
+  const rows = [header.join(',')];
+  list.forEach(r => {
+    const row = [
+      csvEscape(r.name),
+      csvEscape(r.age),
+      csvEscape(r.dob),
+      csvEscape(r.times[0] ?? ''),
+      csvEscape(r.times[1] ?? ''),
+      csvEscape(r.times[2] ?? ''),
+      csvEscape(r.times[3] ?? ''),
+      csvEscape(r.average),
+      csvEscape(r.total)
+    ].join(',');
+    rows.push(row);
+  });
+  return rows.join('\n');
+}
+
+function downloadCSVFiltered(){
+  const all = readResults();
+  // apply same filters as renderAnalysis
+  const nameFilter = $('filterName').value.trim().toLowerCase();
+  const from = $('fromDate').value;
+  const to = $('toDate').value;
+  const filtered = all.filter((r) => {
+    if (nameFilter && !r.name.toLowerCase().includes(nameFilter)) return false;
+    if (from && (new Date(r.testedAt) < new Date(from + 'T00:00:00'))) return false;
+    if (to && (new Date(r.testedAt) > new Date(to + 'T23:59:59'))) return false;
+    return true;
+  });
+  if (filtered.length === 0) { alert('No results to download with current filters.'); return; } 
+  const csv = buildCSVRows(filtered);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `stroop_results_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ==========================
+   On load: show home & render analysis table
+   ========================== */
+document.addEventListener('DOMContentLoaded', () => {
+  showTab('home');
+  renderAnalysis();
+});
 </script>
-
 </body>
 </html>
-
