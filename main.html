@@ -142,8 +142,20 @@ function beginTest(){
   testState.age=calcAge(testState.dob);
   testState.times=[];
   testState.idx=0;
-  testState.levels=readLevels();
-  if(testState.levels.length===0){alert("No levels defined by Admin!");return;}
+
+  // Get levels from localStorage, if not available, fall back to default
+  let savedLevels = readLevels();
+  if (savedLevels.length === 0) {
+    savedLevels = [
+      { name: "Level 1", url: "https://ik.imagekit.io/vukmjukgtm/Level%201%20?updatedAt=1758875505209" },
+      { name: "Level 2", url: "https://ik.imagekit.io/vukmjukgtm/Level%202?updatedAt=1758875663145" },
+      { name: "Level 3", url: "https://ik.imagekit.io/vukmjukgtm/Level%203?updatedAt=1758875723492" },
+      { name: "Level 4 (a)", url: "https://ik.imagekit.io/vukmjukgtm/Level%204%20(a)?updatedAt=1758875953822" },
+      { name: "Level 4 (b)", url: "https://ik.imagekit.io/vukmjukgtm/Level%204%20(b)?updatedAt=1758876000194" }
+    ];
+  }
+  testState.levels = savedLevels;
+
   $('gameArea').style.display='block';
   loadLevel(0);
 }
@@ -188,18 +200,45 @@ function finishTest(){
 }
 
 // Analysis
+
+
 function renderAnalysis(){
-  const all=readResults();
-  const lvls=readLevels();
-  const headRow=$('resultsHead'); headRow.innerHTML="<th>#</th><th>Name</th><th>Age</th><th>DOB</th>";
-  lvls.forEach((l,i)=>{ headRow.innerHTML+=`<th>${l.name} (s)</th>`; });
-  headRow.innerHTML+="<th>Average</th><th>Total</th><th>Tested On</th>";
-  const body=$('resultsBody'); body.innerHTML='';
-  all.forEach((r,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${r.name}</td><td>${r.age}</td><td>${r.dob}</td>`;
-    lvls.forEach((l,j)=>{ tr.innerHTML+=`<td>${r.times[j]||''}</td>`; });
-    tr.innerHTML+=`<td>${r.average}</td><td>${r.total}</td><td>${new Date(r.testedAt).toLocaleString()}</td>`;
+  const all = readResults();
+  let lvls = readLevels();
+
+  // fallback if no levels saved
+  if (lvls.length === 0) {
+    lvls = [
+      { name: "Level 1", url: "" },
+      { name: "Level 2", url: "" },
+      { name: "Level 3", url: "" },
+      { name: "Level 4 (a)", url: "" },
+      { name: "Level 4 (b)", url: "" }
+    ];
+  }
+
+  // Table header
+  const headRow = $('resultsHead');
+  headRow.innerHTML = "<th>#</th><th>Name</th><th>Age</th><th>DOB</th>";
+  lvls.forEach((l,i) => {
+    headRow.innerHTML += `<th>${l.name} (s)</th>`;
+  });
+  headRow.innerHTML += "<th>Average (s)</th><th>Total (s)</th><th>Tested On</th>";
+
+  // Table body
+  const body = $('resultsBody');
+  body.innerHTML = '';
+  all.forEach((r,i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td><td>${r.name}</td><td>${r.age}</td><td>${r.dob}</td>`;
+
+    // each level time
+    lvls.forEach((l,j) => {
+      tr.innerHTML += `<td>${r.times[j] ? r.times[j] + " s" : "-"}</td>`;
+    });
+
+    // average + total
+    tr.innerHTML += `<td>${r.average} s</td><td>${r.total} s</td><td>${new Date(r.testedAt).toLocaleString()}</td>`;
     body.appendChild(tr);
   });
 }
